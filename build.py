@@ -1,12 +1,14 @@
 import json
-from typing import Any, Callable, List
 import logging
-from pathlib import Path
-import importlib
 import zipfile
-from utils.utils import _get_path
+from pathlib import Path
+from typing import Callable, List
+
+from yupi import Trajectory
+from yupi.core import JSONSerializer
+
 import config
-from yupi.core import JSONSerializer, Trajectory
+from utils.utils import _get_path
 
 RECIPIES_DIR = Path("./recipies")
 
@@ -20,27 +22,32 @@ def _read_cache_version(name: str) -> int:
 
     yupi_data = _load_yupi_data(yupi_data_json)
     return yupi_data.get("version", -1)
-    
-def _cache_up_to_date(name: str, version: str) -> bool:
+
+
+def _cache_up_to_date(name: str, version: int) -> bool:
     # Check if rebuild is required
     cache_version = _read_cache_version(name)
-    rebuild = version > cache_version    
+    rebuild = version > cache_version
     return not rebuild
-    
+
+
 def _load_yupi_data(yupi_data_json: Path):
     with open(yupi_data_json, "r", encoding="utf-8") as md_file:
         return json.load(md_file)
+
 
 def _save_yupi_data(yupi_data: dict, path: Path):
     with open(path, "w", encoding="utf-8") as md_file:
         json.dump(yupi_data, md_file, ensure_ascii=False, indent=4)
 
+
 def _update_labels(trajs: List[Trajectory]):
     for i, traj in enumerate(trajs):
         traj.traj_id = str(i)
     return trajs
-    
-def _build_recipe(output_dir: Path, name: str, version: str, build_func: Callable):
+
+
+def _build_recipe(output_dir: Path, name: str, version: int, build_func: Callable):
     trajs, labels = build_func()
     trajs = _update_labels(trajs)
 
@@ -54,36 +61,42 @@ def _build_recipe(output_dir: Path, name: str, version: str, build_func: Callabl
 
     # Compress to output dir
     output_zip = output_dir / f"{name}.zip"
-    with zipfile.ZipFile(output_zip, "r") as zip_ref:
+    output_zip.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(output_zip, "w") as zip_ref:
         zip_ref.write(filename=data_path, arcname=f"{name}.json")
 
 
-def build_recipe(name: str, version: str, build_func: Callable):
-    
+def build_recipe(output_dir: Path, name: str, version: int, build_func: Callable):
     if _cache_up_to_date(name, version):
         logging.info("Dataset '%s' is up to date (v%s)", name, version)
         return
-    
-    _build_recipe(name, version, build_func)
 
-def process_recipe(recipe_py_path: Path):
+    _build_recipe(output_dir, name, version, build_func)
+
+
+def process_recipe(output_dir: Path, recipe_py_path: Path):
     # import NAME, VERSION and build from .py
-    module_name = recipe_py_path.name
+    module_name = recipe_py_path.name.replace(".py", "")
 
-    recipe = __import__.(f"recipies.{module_name}")
-    
+    recipe = __import__(
+        f"recipies.{module_name}", globals(), locals(), ["NAME", "VERSION", "build"], 0
+    )
+
     name = recipe.NAME
     version = recipe.VERSION
     build_func = recipe.build
 
-    build_recipe(name, version, build_func)
+    build_recipe(output_dir, name, version, build_func)
+
 
 def main():
+    output_dir = Path("./builds")
     for dataset_recipe in RECIPIES_DIR.glob("*.py"):
         try:
-            process_recipe(dataset_recipe)
+            process_recipe(output_dir, dataset_recipe)
         except AttributeError:
             logging.error("Recipe '%s' has missing fields", str(dataset_recipe))
-            
+
+
 if __name__ == "__main__":
     main()

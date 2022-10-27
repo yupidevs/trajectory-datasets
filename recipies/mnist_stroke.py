@@ -1,22 +1,20 @@
 import logging
 from pathlib import Path
-from typing import Any, List, Tuple
 from string import Template
+from typing import Any, List, Tuple
 
 import numpy as np
 from yupi import Trajectory
 
-from utils.utils import download_dataset, _get_path
 import config as cfg
+from utils.utils import _get_path, download_dataset
 
 VERSION = 0
-NAME = "MNIST Stroke"
+NAME = "mnist_stroke"
 
 _SEQUENCES_URL = "https://github.com/edwin-de-jong/mnist-digits-stroke-sequence-data/raw/master/sequences.tar.gz"
 _TRAIN_LABELS_URL = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"
 _TEST_LABELS_URL = "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"
-
-RAW_DIR = _get_path(cfg.RAW_DIR)
 
 
 def build() -> Tuple[List[Trajectory], List[Any]]:
@@ -36,6 +34,7 @@ def _read_labels(label_file: Path, count: int) -> List[str]:
         f.read(8)  # discard header info
         return [str(l) for l in f.read(count)]
 
+
 def _read_traj(trajectory_file: Path) -> Trajectory:
     # Load raw data from the stroke
     traj = np.loadtxt(trajectory_file, delimiter=",", skiprows=1)
@@ -44,6 +43,7 @@ def _read_traj(trajectory_file: Path) -> Trajectory:
     points = [(i, j) for i, j in traj if i >= 0 and j >= 0]
 
     return Trajectory(points=points)
+
 
 def _read_trajs(
     sequence_folder: Path, template: Template, count: int
@@ -55,6 +55,7 @@ def _read_trajs(
 
     return trajs
 
+
 def _yupify_mnist(
     sequence_folder: Path, label_file: Path, template: Template, count: int
 ) -> Tuple[List[Trajectory], List[str]]:
@@ -64,6 +65,7 @@ def _yupify_mnist(
     trajs = _read_trajs(sequence_folder, template, count)
 
     return trajs, labels
+
 
 def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
     # Loads the raw data and preprocess it
