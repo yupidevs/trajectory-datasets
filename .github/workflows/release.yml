@@ -1,11 +1,17 @@
 name: Release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        required: true
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
@@ -19,3 +25,5 @@ jobs:
       with:
         name: "trajectory datasets"
         artifacts: "./builds/*.zip"
+        tag: "v${{ github.event.inputs.version }}"
+        commit: "main"
