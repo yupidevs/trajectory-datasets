@@ -62,7 +62,7 @@ def _build_recipe(output_dir: Path, name: str, version: int, build_func: Callabl
     # Compress to output dir
     output_zip = output_dir / f"{name}.zip"
     output_zip.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(output_zip, "w") as zip_ref:
+    with zipfile.ZipFile(output_zip, "w", zipfile.ZIP_DEFLATED) as zip_ref:
         zip_ref.write(filename=data_path, arcname=f"{name}.json")
 
 
