@@ -13,15 +13,15 @@ A curated datasets list of raw trajectories that can be used for trajectory clas
 
 ## Standarized versions of the above datasets
 
-Since each dataset offers its data in a quite different format, we included some scripts that fetch and transform each of them into a standard format. This will allow you to test different analyzis tools regardless the origin of the dataset.
+Since each dataset offers its data in a quite different format, we included some scripts that fetch and transform each of them into a standard format. This will allow you to test different analysis tools regardless the origin of the dataset.
 
 The standarized versions of the datasets are available in the [releases page](https://github.com/yupidevs/trajectory-datasets/releases) of this repository. Moreover, you could generate the standarized versions yourself by cloning this repo, and running [build.py](build.py).
 
-The sandarized version is a single json file for each dataset, that contains the following keys:
-- name: Name of the dataset
-- version: Integer that indicates the version
-- trajs: List of trajectories contained in the dataset
-- labels: List of the labels that classify each trajectory
+A sandarized version is a single json file for each dataset, that contains the following keys:
+- **name:** Name of the dataset
+- **version:** Integer that indicates the version
+- **trajs:** List of trajectories contained in the dataset
+- **labels:** List of the labels that classify each trajectory
 
 ### Loading trajectories from a standarized dataset
 
@@ -31,7 +31,7 @@ variety of programming languages and json-compatible tools.
 However, we recommend you to use [yupi](https://github.com/yupidevs/yupi) to load the datasets
 if you are using Python. A sample script could be:
 
-```
+```python
 import json
 import yupi
 
@@ -42,7 +42,7 @@ with open('geolife.json', "r", encoding="utf-8") as f:
     labels = dataset['labels']    
 ```
 
-This approach, will give you in *trajs* a list of *yupi.Trajectory* objects, which you can use with
+This approach will populate *trajs* as a list of *yupi.Trajectory* objects, which you can use with
 all the resources offered by [yupi library](https://github.com/yupidevs/yupi).
 
 If you are planning to use a dataset for Trajectory Classification, you could use 
@@ -50,7 +50,7 @@ If you are planning to use a dataset for Trajectory Classification, you could us
 to evaluate Trajectory Classification methods and it is (and will always be) compatible with
 all the datasets in this repository, by simply doing:
 
-```
+```python
 import pactus
 
 geolife_dataset = pactus.Dataset().geolife()  
@@ -70,6 +70,7 @@ If you know about a potentially interesting dataset which is not already in this
 you can open a Github Issue providing the information and we will integrate it as soon as possible.
 
 Otherwise, you can integrate it yourself by:
+
 0. Forking this project
 1. Writting a 'recipe' for the dataset. A Python script that downloads the original dataset and converts it
 to the standarized version. You can take a look at the existing recipes into the [recipies folder](recipies/).
