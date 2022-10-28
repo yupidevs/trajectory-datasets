@@ -10,7 +10,7 @@ from yupi.core import JSONSerializer
 import config
 from utils.utils import _get_path
 
-RECIPIES_DIR = Path("./recipies")
+RECIPIES_DIR = Path("./recipes")
 
 
 def _read_cache_version(name: str) -> int:
