@@ -4,6 +4,7 @@ import tarfile
 import zipfile
 from pathlib import Path
 
+import patoolib
 import requests
 from requests import Response
 
@@ -95,27 +96,8 @@ def _download(url: str, dataset_name: str, dataset_path: Path) -> Path:
     return _download_until_finish(url, response, dataset_path)
 
 
-def _uncompress(dataset_name: str, dataset_file_path: Path, dataset_path: Path):
-    logging.info("Extracting %s dataset", dataset_name)
-
-    str_path = str(dataset_file_path)
-    if str_path.endswith(".zip"):
-        with zipfile.ZipFile(dataset_file_path, "r") as zip_ref:
-            zip_ref.extractall(dataset_path)
-    elif str_path.endswith(".tar.gz"):
-        with tarfile.open(dataset_file_path, "r") as tar_ref:
-            tar_ref.extractall(dataset_path)
-    elif str_path.endswith(".gz"):
-        with gzip.open(dataset_file_path, "rb") as gz_ref:
-            with open(str(dataset_file_path.with_suffix("")), "wb") as uncompressed:
-                uncompressed.write(gz_ref.read())
-
-
 def download_dataset(url: str, dataset_name: str) -> Path:
     """Downloads a dataset from a url."""
-
-    if not url.endswith(".zip") and not url.endswith(".gz"):
-        raise ValueError("The dataset must be a zip or .gz file")
 
     # Create the dataset folder if it doesn't exist
     dataset_path = _create_dataset_path(dataset_name)
@@ -124,6 +106,7 @@ def download_dataset(url: str, dataset_name: str) -> Path:
     dataset_file_path = _download(url, dataset_name, dataset_path)
 
     # Extract the dataset
-    _uncompress(dataset_name, dataset_file_path, dataset_path)
+    logging.info("Extracting %s dataset", dataset_name)
+    patoolib.extract_archive(str(dataset_file_path), outdir=str(dataset_path))
 
     return dataset_file_path

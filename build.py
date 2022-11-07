@@ -79,7 +79,7 @@ def process_recipe(output_dir: Path, recipe_py_path: Path):
     module_name = recipe_py_path.name.replace(".py", "")
 
     recipe = __import__(
-        f"recipies.{module_name}", globals(), locals(), ["NAME", "VERSION", "build"], 0
+        f"recipes.{module_name}", globals(), locals(), ["NAME", "VERSION", "build"], 0
     )
 
     name = recipe.NAME
