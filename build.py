@@ -52,6 +52,7 @@ def _build_recipe(output_dir: Path, name: str, version: int, build_func: Callabl
     trajs = _update_labels(trajs)
 
     ds_dir = _get_path(config.DS_DIR, name)
+    ds_dir.mkdir(parents=True, exist_ok=True)
     json_trajs = [JSONSerializer.to_json(traj) for traj in trajs]
     yupi_data = {"version": version, "trajs": json_trajs, "labels": labels}
 
