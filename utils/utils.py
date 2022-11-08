@@ -109,6 +109,8 @@ def download_dataset(url: str, dataset_name: str) -> Path:
 
     # Extract the dataset
     logging.info("Extracting %s dataset", dataset_name)
-    patoolib.extract_archive(str(dataset_file_path), outdir=str(dataset_path))
+    patoolib.extract_archive(
+        str(dataset_file_path), outdir=str(dataset_path), verbosity=1, interactive=False
+    )
 
     return dataset_file_path
