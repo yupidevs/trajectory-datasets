@@ -56,7 +56,9 @@ def _download_until_finish(url: str, response: Response, dataset_path: Path) -> 
                 ds_file.write(chunk)
                 downloaded += len(chunk)
                 print(
-                    _get_progress_log(downloaded, data_length) + size_mb_msg, end="\r"
+                    _get_progress_log(downloaded, data_length) + size_mb_msg,
+                    end="\r",
+                    flush=True,
                 )
     return dataset_file_path
 

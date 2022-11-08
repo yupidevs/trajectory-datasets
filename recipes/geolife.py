@@ -40,14 +40,14 @@ def yupify(raw_dir: Path):
     usr_folders_path = raw_dir / "Geolife Trajectories 1.3/Data"
     usr_folders = list(sorted(usr_folders_path.iterdir()))
     for i, usr in enumerate(usr_folders):
-        print(_get_progress_log(i + 1, len(usr_folders)), end="\r")
+        print(_get_progress_log(i + 1, len(usr_folders)), end="\r", flush=True)
         _process_usr_trajs(usr, raw_metadata)
 
     # Load the preprocessed data and create the yupi trajectories
     logging.info("Creating yupi trajectories")
     trajs, lables = [], []
     for i, traj_data in enumerate(raw_metadata):
-        print(_get_progress_log(i + 1, len(raw_metadata)), end="\r")
+        print(_get_progress_log(i + 1, len(raw_metadata)), end="\r", flush=True)
         x_data = traj_data["traj_data"][:, 0]
         y_data = traj_data["traj_data"][:, 1]
         t_data = traj_data["traj_data"][:, 2]
