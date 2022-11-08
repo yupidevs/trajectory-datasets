@@ -2,7 +2,7 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from yupi import Trajectory
 
@@ -45,14 +45,15 @@ def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
     metadata_path = raw_dir / "GPS Trajectory/go_track_tracks.csv"
     tracks_path = raw_dir / "GPS Trajectory/go_track_trackspoints.csv"
 
-    labels = []
-    trajs = []
+    labels_dict = {}
 
     with open(metadata_path, "r", encoding="utf-8") as meta_fd:
         reader = csv.DictReader(meta_fd)
         for row in reader:
             label = int(row["car_or_bus"])
-            labels.append("car" if label == 1 else "bus")
+            labels_dict[int(row["id"])] = "car" if label == 1 else "bus"
+
+    trajs_rows: Dict[int, List[dict]] = {_id: [] for _id in labels_dict}
 
     with open(tracks_path, "r", encoding="utf-8") as tracks_fd:
         reader = csv.DictReader(tracks_fd)
@@ -62,11 +63,20 @@ def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
         _rows = [first_row]
         for row in reader:
             track_id = int(row["track_id"])
+            if track_id not in labels_dict:
+                continue
             if track_id != _track_id:
-                if len(_rows) > 1:
-                    trajs.append(_get_traj(_rows))
+                if _track_id in labels_dict:
+                    trajs_rows[_track_id].extend(_rows)
+                else:
+                    logging.warning("Track id %d not in metadata", _track_id)
                 _rows = []
                 _track_id = track_id
             _rows.append(row)
 
+    # filter out tracks with less than 2 points
+    trajs_rows = {k: v for k, v in trajs_rows.items() if len(v) > 1}
+
+    labels = [labels_dict[_id] for _id in trajs_rows]
+    trajs = [_get_traj(trajs_rows[_id]) for _id in trajs_rows]
     return trajs, labels

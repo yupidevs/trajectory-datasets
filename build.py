@@ -49,6 +49,12 @@ def _update_labels(trajs: List[Trajectory]):
 
 def _build_recipe(output_dir: Path, name: str, version: int, build_func: Callable):
     trajs, labels = build_func()
+    if len(trajs) != len(labels):
+        raise ValueError(
+            f"Number of trajectories and labels must be equal. "
+            f"Got {len(trajs)} trajectories and {len(labels)} labels."
+        )
+
     trajs = _update_labels(trajs)
 
     ds_dir = _get_path(config.DS_DIR, name)
