@@ -92,7 +92,7 @@ def process_recipe(output_dir: Path, recipe_py_path: Path):
 
 def main():
     output_dir = Path("./builds")
-    for dataset_recipe in RECIPIES_DIR.glob("*.py"):
+    for dataset_recipe in RECIPIES_DIR.glob("[!_]*.py"):
         try:
             process_recipe(output_dir, dataset_recipe)
         except AttributeError:

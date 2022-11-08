@@ -2,15 +2,14 @@ from random import Random
 from typing import Any, List, Tuple
 
 from yupi import Trajectory
-from yupi.generators import LangevinGenerator, DiffDiffGenerator, RandomWalkGenerator
-
+from yupi.generators import DiffDiffGenerator, LangevinGenerator, RandomWalkGenerator
 
 # Dataset metadata
 NAME = "stochastic_models"
-VERSION = 1
+VERSION = 0
 
 # Trajectory-specific parameters
-DIMENSIONS = 3
+DIMENSIONS = 2
 AVERAGE_DURATION = 10
 AVERAGE_SAMPLE_TIME = 0.1
 DURATION_STD = 2
@@ -36,7 +35,7 @@ def build() -> Tuple[List[Trajectory], List[Any]]:
         tl, ll = mb(TRAJECTORIES_PER_MODEL)
         trajs += tl
         labels += ll
-    #TODO: Shuffle before return
+    # TODO: Shuffle before return
     return trajs, labels
 
 
@@ -76,7 +75,7 @@ def _build_langevin(count: int) -> Tuple[List[Trajectory], List[Any]]:
 
 def _rand_unit_vect(rng: Random, size=3) -> List[float]:
     random_vector = [rng.uniform(0, 10) for i in range(size)]
-    normalized = [i/sum(random_vector) for i in random_vector] 
+    normalized = [i / sum(random_vector) for i in random_vector]
     normalized[-1] += 1 - sum(normalized)
     return normalized
 
@@ -89,7 +88,9 @@ def _build_random_walk(count: int) -> Tuple[List[Trajectory], List[Any]]:
         dt = abs(rng.normalvariate(AVERAGE_SAMPLE_TIME, SAMPLE_TIME_STD))
         T = abs(rng.normalvariate(AVERAGE_DURATION, DURATION_STD))
         prob = [_rand_unit_vect(rng) for i in range(DIMENSIONS)]
-        lg_gen = RandomWalkGenerator(dim=DIMENSIONS, N=1, dt=dt, T=T, seed=get_seed(), actions_prob=prob)
+        lg_gen = RandomWalkGenerator(
+            dim=DIMENSIONS, N=1, dt=dt, T=T, seed=get_seed(), actions_prob=prob
+        )
         trajs.append(lg_gen.generate()[0])
         labels.append("RandomWalk")
 
@@ -120,5 +121,6 @@ def _build_diffdiff(count: int) -> Tuple[List[Trajectory], List[Any]]:
 
     return trajs, labels
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     build()
