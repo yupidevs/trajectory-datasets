@@ -71,8 +71,8 @@ def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing MNIST stroke raw data")
     sequence_path = raw_dir / "sequences"
-    train_labels_path = raw_dir / "train-labels-idx1-ubyte"
-    test_labels_path = raw_dir / "t10k-labels-idx1-ubyte"
+    train_labels_path = raw_dir / "train-labels.idx1-ubyte"
+    test_labels_path = raw_dir / "t10k-labels.idx1-ubyte"
 
     logging.info("Yupifying train dataset...")
     train_template = Template("trainimg-$id-points.txt")
