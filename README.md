@@ -6,11 +6,12 @@ classification.
 
 ## Datasets
 
-| Name         | Description                                          | Availability                                                                           | Classification Goal                                                                                            |
-|--------------|------------------------------------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| geolife      | Records of people outdoor movements                  | [microsoft.com](https://www.microsoft.com/en-us/download/confirmation.aspx?id=52367)   | Transportation mode:<br>walk<br>bike<br>bus<br>car<br>subway<br>train<br>airplane<br>boat<br>run<br>motorcycle |
-| mnist_stroke | Sequences of strokes representing handwriting digits | [edwin-de-jong.github.io](https://edwin-de-jong.github.io/blog/mnist-sequence-data/)   | Decimal digits: <br> 1,2,3,4,5,6,7,8,9,0                                                                       |
-| uci_gotrack  | Cars and buses GPS trayectories                      | [ics.uci.edu](https://archive.ics.uci.edu/ml/datasets/GPS+Trajectories#)               | Transportation mode:<br>bus<br>car                                                                             |
+| Name               | Description                                           | Availability                                                                           | Classification Goal                                                                                                      |
+|--------------------|-------------------------------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| geolife            | Records of people outdoor movements                   | [microsoft.com](https://www.microsoft.com/en-us/download/confirmation.aspx?id=52367)   | Transportation mode:<br>•walk<br>•bike<br>•bus<br>•car<br>•subway<br>•train<br>•airplane<br>•boat<br>•run<br>•motorcycle |
+| mnist_stroke       | Sequences of strokes representing handwriting digits  | [edwin-de-jong.github.io](https://edwin-de-jong.github.io/blog/mnist-sequence-data/)   | Decimal digits: <br> •1, •2, •3, •4, •5, •6, •7, •8, •9, •0                                                              |
+| uci_gotrack        | Cars and buses GPS trayectories                       | [ics.uci.edu](https://archive.ics.uci.edu/ml/datasets/GPS+Trajectories#)               | Transportation mode:<br>•bus<br>•car                                                                                     |
+| stochastic_models  | Trajectories generated using statistical models       | [here](recipes/stochastic_models.py)                                                   | Model used:<br>•Random Walk<br>•Langevin Ecquation<br>•Diffusing Diffusivity                                             |
 
 
 ### Standarized versions of the above datasets
@@ -31,7 +32,7 @@ page](https://github.com/yupidevs/trajectory-datasets/releases) of this
 repository. Moreover, you could generate the standarized versions yourself by
 cloning this repo, and running [build.py](build.py).
 
-## Loading trajectories the standarized datasets
+## Loading trajectories from standarized datasets
 
 Since the standarized format is a plain-text json file, it can be loaded in a
 vast variety of programming languages and json-compatible tools.
