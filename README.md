@@ -6,34 +6,32 @@ classification.
 
 ## Datasets
 
-| Name         | Description                                          | Availability                                                                |
-|--------------|------------------------------------------------------|-----------------------------------------------------------------------------|
-| geolife      | Records of people outdoor movements                  | [here](https://www.microsoft.com/en-us/download/confirmation.aspx?id=52367) |
-| mnist_stroke | Sequences of strokes representing handwriting digits | [here](https://edwin-de-jong.github.io/blog/mnist-sequence-data/)           |
-| uci_gotrack  | Cars and buses GPS trayectories                      | [here](https://archive.ics.uci.edu/ml/datasets/GPS+Trajectories#)           |
+| Name         | Description                                          | Availability                                                                           | Classification Goal                                                                                            |
+|--------------|------------------------------------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| geolife      | Records of people outdoor movements                  | [microsoft.com](https://www.microsoft.com/en-us/download/confirmation.aspx?id=52367)   | Transportation mode:<br>walk<br>bike<br>bus<br>car<br>subway<br>train<br>airplane<br>boat<br>run<br>motorcycle |
+| mnist_stroke | Sequences of strokes representing handwriting digits | [edwin-de-jong.github.io](https://edwin-de-jong.github.io/blog/mnist-sequence-data/)   | Decimal digits: <br> 1,2,3,4,5,6,7,8,9,0                                                                       |
+| uci_gotrack  | Cars and buses GPS trayectories                      | [ics.uci.edu](https://archive.ics.uci.edu/ml/datasets/GPS+Trajectories#)               | Transportation mode:<br>bus<br>car                                                                             |
 
 
-
-## Standarized versions of the above datasets
+### Standarized versions of the above datasets
 
 Since each dataset offers its data in a quite different format, we included
-some scripts that fetch and transform each of them into a standard format. This
-will allow you to test different analysis tools regardless the origin of the
-dataset.
-
-The standarized versions of the datasets are available in the [releases
-page](https://github.com/yupidevs/trajectory-datasets/releases) of this
-repository. Moreover, you could generate the standarized versions yourself by
-cloning this repo, and running [build.py](build.py).
+some scripts for fetching and transforming them into a standard format. This
+will allow testing different analysis tools independently of the dataset.
 
 A sandarized version is a single json file for each dataset, that contains the
 following keys:
 - **name:** Name of the dataset
 - **version:** Integer that indicates the version
 - **trajs:** List of trajectories contained in the dataset
-- **labels:** List of the labels that classify each trajectory
+- **labels:** List of the labels associated to each trajectory
 
-### Loading trajectories from a standarized dataset
+The standarized versions of the datasets are available in the [releases
+page](https://github.com/yupidevs/trajectory-datasets/releases) of this
+repository. Moreover, you could generate the standarized versions yourself by
+cloning this repo, and running [build.py](build.py).
+
+## Loading trajectories the standarized datasets
 
 Since the standarized format is a plain-text json file, it can be loaded in a
 vast variety of programming languages and json-compatible tools.
@@ -74,10 +72,10 @@ you only the first time you use a dataset. Here, `trajs` is also a list of
 `yupi.Trajectory` objects.
 
 
-### Adding datasets to this repository
+## Adding datasets to this repository
 
 New datasets are always welcome to this repository. We only need to ensure that
-those can be freely accessed and are relevant for trajectory classification.
+those can be freely accessed and are relevant for raw-trajectory classification.
 
 If you know about a potentially interesting dataset which is not already in
 this repository, you can open a Github Issue providing the information and we
