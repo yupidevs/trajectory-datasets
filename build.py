@@ -55,6 +55,9 @@ def _build_recipe(output_dir: Path, name: str, version: int, build_func: Callabl
             f"Got {len(trajs)} trajectories and {len(labels)} labels."
         )
 
+    if not all(len(traj) > 2 for traj in trajs):
+        raise ValueError("All trajectories must have at least 3 points.")
+
     trajs = _update_labels(trajs)
 
     ds_dir = _get_path(config.DS_DIR, name)
