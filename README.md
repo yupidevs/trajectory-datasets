@@ -3,16 +3,15 @@
 A curated datasets list of raw trajectories that can be used for trajectory
 classification.
 
-
 ## Datasets
 
-| Name               | Description                                           | Availability                                                                           | Classification Goal                                                                                                      |
-|--------------------|-------------------------------------------------------|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| geolife            | Records of people outdoor movements                   | [microsoft.com](https://www.microsoft.com/en-us/download/confirmation.aspx?id=52367)   | Transportation mode:<br>•walk<br>•bike<br>•bus<br>•car<br>•subway<br>•train<br>•airplane<br>•boat<br>•run<br>•motorcycle |
-| mnist_stroke       | Sequences of strokes representing handwriting digits  | [edwin-de-jong.github.io](https://edwin-de-jong.github.io/blog/mnist-sequence-data/)   | Decimal digits: <br> •1, •2, •3, •4, •5, •6, •7, •8, •9, •0                                                              |
-| uci_gotrack        | Cars and buses GPS trayectories                       | [ics.uci.edu](https://archive.ics.uci.edu/ml/datasets/GPS+Trajectories#)               | Transportation mode:<br>•bus<br>•car                                                                                     |
-| stochastic_models  | Trajectories generated using statistical models       | [here](recipes/stochastic_models.py)                                                   | Model used:<br>•Random Walk<br>•Langevin Ecquation<br>•Diffusing Diffusivity                                             |
-
+| Name               | Description                                           | Availability                                                                                       | Classification Goal                                                                                                      |
+|--------------------|-------------------------------------------------------|----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| geolife            | Records of people outdoor movements                   | [microsoft.com](https://www.microsoft.com/en-us/download/confirmation.aspx?id=52367)               | Transportation mode:<br>•walk<br>•bike<br>•bus<br>•car<br>•subway<br>•train<br>•airplane<br>•boat<br>•run<br>•motorcycle |
+| mnist_stroke       | Sequences of strokes representing handwritten digits  | [edwin-de-jong.github.io](https://edwin-de-jong.github.io/blog/mnist-sequence-data/)               | Decimal digits: <br> •1, •2, •3, •4, •5, •6, •7, •8, •9, •0                                                              |
+| uci_gotrack        | Cars and buses GPS trayectories                       | [ics.uci.edu](https://archive.ics.uci.edu/ml/datasets/GPS+Trajectories#)                           | Transportation mode:<br>•bus<br>•car                                                                                     |
+| uci_pen_digits     | Pen-Based Recognition of Handwritten Digits           | [ics.uci.edu](https://archive.ics.uci.edu/ml/datasets/Pen-Based+Recognition+of+Handwritten+Digits) | Decimal digits: <br> •1, •2, •3, •4, •5, •6, •7, •8, •9, •0                                                              |
+| stochastic_models  | Trajectories generated using statistical models       | [here](recipes/stochastic_models.py)                                                               | Model used:<br>•Random Walk<br>•Langevin Ecquation<br>•Diffusing Diffusivity                                             |
 
 ### Standarized versions of the above datasets
 
@@ -71,7 +70,6 @@ trajs, labels = geolife_dataset.trajs, geolife_dataset.labels
 You don't need to download the dataset in advance. The library will do it for
 you only the first time you use a dataset. Here, `trajs` is also a list of
 `yupi.Trajectory` objects.
-
 
 ## Adding datasets to this repository
 

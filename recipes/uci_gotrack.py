@@ -74,8 +74,8 @@ def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
                 _track_id = track_id
             _rows.append(row)
 
-    # filter out tracks with less than 2 points
-    trajs_rows = {k: v for k, v in trajs_rows.items() if len(v) > 1}
+    # filter out tracks with less than 3 points
+    trajs_rows = {k: v for k, v in trajs_rows.items() if len(v) > 2}
 
     labels = [labels_dict[_id] for _id in trajs_rows]
     trajs = [_get_traj(trajs_rows[_id]) for _id in trajs_rows]

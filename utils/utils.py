@@ -98,7 +98,7 @@ def _download(url: str, dataset_name: str, dataset_path: Path) -> Path:
     return _download_until_finish(url, response, dataset_path)
 
 
-def download_dataset(url: str, dataset_name: str) -> Path:
+def download_dataset(url: str, dataset_name: str, uncompress: bool = True) -> Path:
     """Downloads a dataset from a url."""
 
     # Create the dataset folder if it doesn't exist
@@ -108,12 +108,13 @@ def download_dataset(url: str, dataset_name: str) -> Path:
     dataset_file_path = _download(url, dataset_name, dataset_path)
 
     # Extract the dataset
-    logging.info("Extracting %s dataset", dataset_name)
-    patoolib.extract_archive(
-        str(dataset_file_path),
-        outdir=str(dataset_path),
-        verbosity=1,
-        interactive=False,
-    )
+    if uncompress:
+        logging.info("Extracting %s dataset", dataset_name)
+        patoolib.extract_archive(
+            str(dataset_file_path),
+            outdir=str(dataset_path),
+            verbosity=1,
+            interactive=False,
+        )
 
     return dataset_file_path
