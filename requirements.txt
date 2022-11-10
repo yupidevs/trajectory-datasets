@@ -2,3 +2,4 @@ yupi>=0.11.2
 requests
 numpy
 patool
+scipy
