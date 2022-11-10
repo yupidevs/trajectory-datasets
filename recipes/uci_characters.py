@@ -51,7 +51,7 @@ def _fetch_raw_data() -> Path:
 
 def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing UCI pen digits raw data")
+    logging.info("Preprocessing UCI characters raw data")
     mat_file = raw_dir / "mixoutALL_shifted.mat"
     mat = loadmat(str(mat_file))
     _dt = mat["consts"][0][0][5][0][0]
