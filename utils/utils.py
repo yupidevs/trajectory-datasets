@@ -63,13 +63,17 @@ def _download_until_finish(url: str, response: Response, dataset_path: Path) -> 
     return dataset_file_path
 
 
-def _download(url: str, dataset_name: str, dataset_path: Path) -> Path:
+def _download(
+    url: str, dataset_name: str, dataset_path: Path, check_size: bool = True
+) -> Path:
     # Make the download request
     response = _start_download(url, dataset_name)
 
     # Check if the dataset is already downloaded
     dataset_file_path = dataset_path / url.split("/")[-1]
     if dataset_file_path.exists():
+        if not check_size:
+            return dataset_file_path
         size = -1
         if "content-length" in response.headers:
             size = int(response.headers["content-length"])
@@ -98,14 +102,16 @@ def _download(url: str, dataset_name: str, dataset_path: Path) -> Path:
     return _download_until_finish(url, response, dataset_path)
 
 
-def download_dataset(url: str, dataset_name: str, uncompress: bool = True) -> Path:
+def download_dataset(
+    url: str, dataset_name: str, uncompress: bool = True, check_size: bool = True
+) -> Path:
     """Downloads a dataset from a url."""
 
     # Create the dataset folder if it doesn't exist
     dataset_path = _create_dataset_path(dataset_name)
 
     # Download the compressed version of the dataset
-    dataset_file_path = _download(url, dataset_name, dataset_path)
+    dataset_file_path = _download(url, dataset_name, dataset_path, check_size)
 
     # Extract the dataset
     if uncompress:

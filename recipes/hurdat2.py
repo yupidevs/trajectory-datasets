@@ -4,7 +4,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Tuple
 
-from scipy.io.matlab import loadmat
 from yupi import Trajectory
 
 from utils.utils import download_dataset
@@ -48,7 +47,7 @@ def _get_datetime(date_str: str, time_str: str) -> datetime:
 
 
 def _process_huracane(hur_rows: List[List[str]]) -> Tuple[Trajectory, int]:
-    lat, long, time, max_wind_speed = [], [], [], -1
+    lat, long, time, max_wind_speed = [], [], [], -1.0
     start_time = None
     for row in hur_rows:
         if start_time is None:
