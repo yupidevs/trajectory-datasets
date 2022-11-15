@@ -17,6 +17,8 @@ _ANIMALS_TRACKS = (
     "master/Starkey_OR_Main_Telemetry_1993-1996_Data.txt"
 )
 
+LABELS = {"E": "Elk", "D": "Deer", "C": "Cattle"}
+
 
 def build() -> Tuple[List[Trajectory], List[Any]]:
     raw_dir = _fetch_raw_data()
@@ -56,7 +58,7 @@ def _process_animal(animal_rows) -> Tuple[Trajectory, str]:
         lat.append(_lat)
         long.append(_long)
 
-    return Trajectory(x=long, y=lat, t=time), label
+    return Trajectory(x=long, y=lat, t=time), LABELS[label]
 
 
 def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
