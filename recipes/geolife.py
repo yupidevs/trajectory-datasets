@@ -48,8 +48,8 @@ def yupify(raw_dir: Path):
     trajs, lables = [], []
     for i, traj_data in enumerate(raw_metadata):
         print(_get_progress_log(i + 1, len(raw_metadata)), end="\r", flush=True)
-        x_data = traj_data["traj_data"][:, 0]
-        y_data = traj_data["traj_data"][:, 1]
+        x_data = traj_data["traj_data"][:, 1]
+        y_data = traj_data["traj_data"][:, 0]
         t_data = traj_data["traj_data"][:, 2]
         trajs.append(Trajectory(x=x_data, y=y_data, t=t_data))
         lables.append(traj_data["label"])

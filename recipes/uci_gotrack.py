@@ -36,7 +36,7 @@ def _get_traj(rows: List[dict]) -> Trajectory:
         (datetime.strptime(row["time"], "%Y-%m-%d %H:%M:%S") - _t0).total_seconds()
         for row in rows
     ]
-    return Trajectory(x=lat, y=lon, t=time)
+    return Trajectory(x=lon, y=lat, t=time)
 
 
 def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
