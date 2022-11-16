@@ -61,9 +61,9 @@ library](https://github.com/yupidevs/yupi).
 
 If you are planning to use a dataset for Trajectory Classification, you could
 use [pactus library](https://github.com/yupidevs/pactus) instead of yupi. It is
-a framework designed to evaluate Trajectory Classification methods and it is
-(and will always be) compatible with all the datasets in this repository, by
-simply doing:
+a framework designed to evaluate Trajectory Classification methods and **it is
+(and will always be)** compatible with all the datasets in this repository, by
+simply doing for example:
 
 ```python
 import pactus
