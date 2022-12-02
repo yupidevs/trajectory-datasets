@@ -97,7 +97,7 @@ def _process_usr_trajs(usr_folder: Path, raw_metadata: List[dict]) -> None:
                         "label": label.name,
                     }
                 )
-                traj.clear()
+            traj.clear()
 
             # Move to the next label
             label_idx += 1
