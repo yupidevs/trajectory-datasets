@@ -62,6 +62,9 @@ def _process_huracane(hur_rows: List[List[str]]) -> Tuple[Trajectory, int]:
         lat.append(float(row[4][:-1]))
         long.append(float(row[5][:-1]))
 
+        if row[5][-1] == "W":
+            long[-1] *= -1
+
         max_wind_speed = max(max_wind_speed, float(row[6]))
 
     label = _get_saffir_simpson_scale(max_wind_speed)
