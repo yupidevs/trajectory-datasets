@@ -39,16 +39,27 @@ def _get_datetime(date_str: str, time_str: str) -> datetime:
 
 
 def _process_animal(animal_rows) -> Tuple[Trajectory, str]:
+    for row in animal_rows:
+        row["time"] = _get_datetime(row[" LocDate"], row[" LocTime"])
+
+    sorted_rows = sorted(animal_rows, key=lambda x: x["time"])
+
     lat, long, time = [], [], []
     start_time = None
     label = animal_rows[0][" Species"]
-    for row in animal_rows:
+    for i, row in enumerate(sorted_rows):
         if start_time is None:
             start_time = _get_datetime(row[" LocDate"], row[" LocTime"])
             time.append(0)
         else:
             _time = _get_datetime(row[" LocDate"], row[" LocTime"])
-            time.append((_time - start_time).total_seconds())
+            new_time = (_time - start_time).total_seconds()
+            if new_time == time[-1]:
+                continue
+            assert (
+                new_time > time[-1]
+            ), f"Time is not increasing: {new_time} <= {time[-1]}. {i}: {_time}"
+            time.append(new_time)
 
         assert row[" Species"] == label
 

@@ -2,7 +2,7 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 from yupi import Trajectory
 
@@ -28,15 +28,20 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _get_traj(rows: List[dict]) -> Trajectory:
-    lat = [float(row["latitude"]) for row in rows]
-    lon = [float(row["longitude"]) for row in rows]
+def _get_traj(rows: List[dict]) -> Union[Trajectory, None]:
+    lat, lon, time = [], [], []
     _t0 = datetime.strptime(rows[0]["time"], "%Y-%m-%d %H:%M:%S")
-    time = [
-        (datetime.strptime(row["time"], "%Y-%m-%d %H:%M:%S") - _t0).total_seconds()
-        for row in rows
-    ]
-    return Trajectory(x=lon, y=lat, t=time)
+    _last_t = None
+    for row in rows:
+        _t = datetime.strptime(row["time"], "%Y-%m-%d %H:%M:%S")
+        if _last_t is not None and _t <= _last_t:
+            _last_t = _t
+            continue
+        lat.append(float(row["latitude"]))
+        lon.append(float(row["longitude"]))
+        time.append((_t - _t0).total_seconds())
+        _last_t = _t
+    return Trajectory(x=lon, y=lat, t=time) if len(time) > 3 else None
 
 
 def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
@@ -74,9 +79,12 @@ def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
                 _track_id = track_id
             _rows.append(row)
 
-    # filter out tracks with less than 3 points
-    trajs_rows = {k: v for k, v in trajs_rows.items() if len(v) > 2}
-
-    labels = [labels_dict[_id] for _id in trajs_rows]
-    trajs = [_get_traj(trajs_rows[_id]) for _id in trajs_rows]
+    trajs, labels = [], []
+    for rows, lbl in zip(trajs_rows.values(), labels_dict.values()):
+        if len(rows) < 3:
+            continue
+        traj = _get_traj(rows)
+        if traj is not None:
+            trajs.append(traj)
+            labels.append(lbl)
     return trajs, labels
