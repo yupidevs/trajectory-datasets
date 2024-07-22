@@ -1,7 +1,4 @@
-import gzip
 import logging
-import tarfile
-import zipfile
 from pathlib import Path
 
 import patoolib
