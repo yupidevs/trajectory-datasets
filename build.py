@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 import zipfile
 from pathlib import Path
 from typing import Callable, List
@@ -100,8 +101,11 @@ def process_recipe(output_dir: Path, recipe_py_path: Path):
 
 
 def main():
+    only_recipies = sys.argv[1].split(",") if len(sys.argv) > 1 else None
     output_dir = Path("./builds")
     for dataset_recipe in RECIPIES_DIR.glob("[!_]*.py"):
+        if dataset_recipe.stem not in only_recipies:
+            continue
         try:
             process_recipe(output_dir, dataset_recipe)
         except AttributeError:

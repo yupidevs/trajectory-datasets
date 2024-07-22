@@ -7,6 +7,10 @@ on:
         type: string
         required: true
         description: "Version number"
+      only_recipes:
+        type: string
+        required: false
+        description: "Only recipes to release (comma separated, no spaces, e.g. 'recipe1,recipe2')"
 
 jobs:
   release:
@@ -23,7 +27,7 @@ jobs:
     - name: Install python dependencies
       run: pip install -r requirements.txt
     - name: Run build
-      run: python build.py
+      run: python build.py ${{ github.event.inputs.only_recipes }}
     - uses: ncipollo/release-action@v1
       with:
         name: "trajectory datasets"
