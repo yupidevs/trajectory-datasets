@@ -6,8 +6,8 @@
 
 **Standardized raw trajectory datasets for trajectory classification.**
 
-[![QA](https://github.com/gvieralopez/trajectory-datasets/actions/workflows/qa.yml/badge.svg)](https://github.com/gvieralopez/trajectory-datasets/actions/workflows/qa.yml)
-[![Release](https://img.shields.io/github/v/release/gvieralopez/trajectory-datasets?label=release)](https://github.com/gvieralopez/trajectory-datasets/releases/latest)
+[![QA](https://github.com/yupidevs/trajectory-datasets/actions/workflows/qa.yml/badge.svg)](https://github.com/yupidevs/trajectory-datasets/actions/workflows/qa.yml)
+[![Release](https://img.shields.io/github/v/release/yupidevs/trajectory-datasets?label=release)](https://github.com/yupidevs/trajectory-datasets/releases/latest)
 [![Python 3.15+](https://img.shields.io/badge/python-3.15%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 <br>
@@ -17,7 +17,7 @@
 
 <!-- Badges to move into the rows above once they apply:
 [![PyPI](https://img.shields.io/pypi/v/trajectory_datasets)](https://pypi.org/project/trajectory_datasets/)
-[![Docker image](https://img.shields.io/badge/docker-ghcr.io-2496ED?logo=docker&logoColor=white)](https://github.com/gvieralopez/trajectory-datasets/pkgs/container/trajectory-datasets)
+[![Docker image](https://img.shields.io/badge/docker-ghcr.io-2496ED?logo=docker&logoColor=white)](https://github.com/yupidevs/trajectory-datasets/pkgs/container/trajectory-datasets)
 [![Docs](https://readthedocs.org/projects/trajectory-datasets/badge/?version=latest)](https://trajectory-datasets.readthedocs.io)
 -->
 
