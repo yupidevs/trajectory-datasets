@@ -8,7 +8,6 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-from yupi import Trajectory
 from yupi.core import JSONSerializer
 
 from trajectory_datasets import config, recipes

@@ -2,23 +2,21 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 
 from yupi import Trajectory
 
-from trajectory_datasets import config as cfg
-from trajectory_datasets.downloads import _get_path, download_dataset
+from trajectory_datasets.downloads import download_dataset
 
 VERSION = 0
 NAME = "uci_gotrack"
 
 _UCI_TRACKS_URL = (
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/"
-    "00354/GPS%20Trajectory.rar"
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/00354/GPS%20Trajectory.rar"
 )
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -28,7 +26,7 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _get_traj(rows: List[dict]) -> Union[Trajectory, None]:
+def _get_traj(rows: list[dict]) -> Trajectory | None:
     lat, lon, time = [], [], []
     _t0 = datetime.strptime(rows[0]["time"], "%Y-%m-%d %H:%M:%S")
     _last_t = None
@@ -44,7 +42,7 @@ def _get_traj(rows: List[dict]) -> Union[Trajectory, None]:
     return Trajectory(x=lon, y=lat, t=time) if len(time) > 3 else None
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing UCI GPS trajectories raw data")
     metadata_path = raw_dir / "GPS Trajectory/go_track_tracks.csv"
@@ -52,15 +50,15 @@ def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
 
     labels_dict = {}
 
-    with open(metadata_path, "r", encoding="utf-8") as meta_fd:
+    with open(metadata_path, encoding="utf-8") as meta_fd:
         reader = csv.DictReader(meta_fd)
         for row in reader:
             label = int(row["car_or_bus"])
             labels_dict[int(row["id"])] = "car" if label == 1 else "bus"
 
-    trajs_rows: Dict[int, List[dict]] = {_id: [] for _id in labels_dict}
+    trajs_rows: dict[int, list[dict]] = {_id: [] for _id in labels_dict}
 
-    with open(tracks_path, "r", encoding="utf-8") as tracks_fd:
+    with open(tracks_path, encoding="utf-8") as tracks_fd:
         reader = csv.DictReader(tracks_fd)
 
         first_row = next(reader)

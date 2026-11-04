@@ -2,7 +2,7 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
 from yupi import Trajectory
 
@@ -11,12 +11,10 @@ from trajectory_datasets.downloads import download_dataset
 VERSION = 0
 NAME = "traffic"
 
-_TRAFFIC_URL = (
-    "https://zen-traffic-data.net/english/file/archive/TRAJECTORY_PUB_SMP.zip"
-)
+_TRAFFIC_URL = "https://zen-traffic-data.net/english/file/archive/TRAJECTORY_PUB_SMP.zip"
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -30,7 +28,7 @@ def _get_time(date_str: str) -> datetime:
     return datetime.strptime(date_str.strip(), r"%H%M%S%f")
 
 
-def _process_car(car_rows: List[List[Any]]) -> Tuple[Trajectory, str]:
+def _process_car(car_rows: list[list[Any]]) -> tuple[Trajectory, str]:
     x = [float(row[5]) for row in car_rows]
     y = [float(row[6]) for row in car_rows]
     dt0 = _get_time(car_rows[0][1])
@@ -40,12 +38,12 @@ def _process_car(car_rows: List[List[Any]]) -> Tuple[Trajectory, str]:
     return traj, label
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing Traffic raw data")
     trajs, labels = [], []
 
-    with open(raw_dir / "TRAJECTORY_PUB_SMP.csv", "r") as csv_file:
+    with open(raw_dir / "TRAJECTORY_PUB_SMP.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
         current_car = [next(csv_reader)]
         current_id = current_car[0][0]

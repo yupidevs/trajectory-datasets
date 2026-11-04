@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Tuple
+from typing import Any
 
 import numpy as np
 from yupi import Trajectory
@@ -19,7 +19,7 @@ N_TRAJS = 1000
 
 
 # Build a new instance of the dataset
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     trajs, labels = [], []
     model_builders = _build_langevin, _build_random_walk, _build_diffdiff
     logging.info("Generating stochastic models dataset")
@@ -39,7 +39,7 @@ def get_seed() -> int:
     return seed
 
 
-def _build_langevin(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
+def _build_langevin(n_trajs: int) -> tuple[list[Trajectory], list[Any]]:
     rng = np.random.default_rng(seed)
 
     tau = rng.uniform(*RANG_T_SCALE, size=n_trajs)
@@ -52,13 +52,7 @@ def _build_langevin(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
     trajs, labels = [], []
     for T_, dt_, gamma_, sigma_ in zip(T, dt, gamma, sigma):
         lg_gen = LangevinGenerator(
-            T=T_,
-            dim=DIM,
-            N=1,
-            dt=dt_,
-            gamma=gamma_,
-            sigma=sigma_,
-            seed=get_seed(),
+            T=T_, dim=DIM, N=1, dt=dt_, gamma=gamma_, sigma=sigma_, seed=get_seed()
         )
         trajs.append(*lg_gen.generate())
         labels.append("Langevin")
@@ -66,7 +60,7 @@ def _build_langevin(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
     return trajs, labels
 
 
-def _build_diffdiff(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
+def _build_diffdiff(n_trajs: int) -> tuple[list[Trajectory], list[Any]]:
     rng = np.random.default_rng(seed)
 
     tau = rng.uniform(*RANG_T_SCALE, size=n_trajs)
@@ -78,13 +72,7 @@ def _build_diffdiff(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
     trajs, labels = [], []
     for T_, dt_, tau_, sigma_ in zip(T, dt, tau, sigma):
         dfdf_gen = DiffDiffGenerator(
-            T=T_,
-            dim=DIM,
-            N=1,
-            dt=dt_,
-            tau=tau_,
-            sigma=sigma_,
-            seed=get_seed(),
+            T=T_, dim=DIM, N=1, dt=dt_, tau=tau_, sigma=sigma_, seed=get_seed()
         )
         trajs.append(*dfdf_gen.generate())
         labels.append("DiffDiff")
@@ -92,7 +80,7 @@ def _build_diffdiff(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
     return trajs, labels
 
 
-def _build_random_walk(n_trajs: int) -> Tuple[List[Trajectory], List[Any]]:
+def _build_random_walk(n_trajs: int) -> tuple[list[Trajectory], list[Any]]:
     rng = np.random.default_rng(seed)
 
     tau = rng.uniform(*RANG_T_SCALE, size=n_trajs)

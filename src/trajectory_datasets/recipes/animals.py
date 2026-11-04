@@ -2,7 +2,7 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import utm
 from yupi import Trajectory
@@ -20,25 +20,21 @@ _ANIMALS_TRACKS = (
 LABELS = {"E": "Elk", "D": "Deer", "C": "Cattle"}
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
 
 def _fetch_raw_data() -> Path:
-    raw_trajs_filepath = download_dataset(
-        _ANIMALS_TRACKS, NAME, uncompress=False, check_size=False
-    )
+    raw_trajs_filepath = download_dataset(_ANIMALS_TRACKS, NAME, uncompress=False, check_size=False)
     return raw_trajs_filepath.parent
 
 
 def _get_datetime(date_str: str, time_str: str) -> datetime:
-    return datetime.strptime(
-        date_str.strip() + " " + time_str.strip(), "%Y%m%d %H:%M:%S"
-    )
+    return datetime.strptime(date_str.strip() + " " + time_str.strip(), "%Y%m%d %H:%M:%S")
 
 
-def _process_animal(animal_rows) -> Tuple[Trajectory, str]:
+def _process_animal(animal_rows) -> tuple[Trajectory, str]:
     for row in animal_rows:
         row["time"] = _get_datetime(row[" LocDate"], row[" LocTime"])
 
@@ -56,9 +52,9 @@ def _process_animal(animal_rows) -> Tuple[Trajectory, str]:
             new_time = (_time - start_time).total_seconds()
             if new_time == time[-1]:
                 continue
-            assert (
-                new_time > time[-1]
-            ), f"Time is not increasing: {new_time} <= {time[-1]}. {i}: {_time}"
+            assert new_time > time[-1], (
+                f"Time is not increasing: {new_time} <= {time[-1]}. {i}: {_time}"
+            )
             time.append(new_time)
 
         assert row[" Species"] == label
@@ -72,13 +68,11 @@ def _process_animal(animal_rows) -> Tuple[Trajectory, str]:
     return Trajectory(x=long, y=lat, t=time), LABELS[label]
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing Animals raw data")
-    rows_dict: Dict[str, Any] = {}
-    with open(
-        raw_dir / "Starkey_OR_Main_Telemetry_1993-1996_Data.txt", encoding="utf-8"
-    ) as file:
+    rows_dict: dict[str, Any] = {}
+    with open(raw_dir / "Starkey_OR_Main_Telemetry_1993-1996_Data.txt", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
             _id: str = row[" Id"]

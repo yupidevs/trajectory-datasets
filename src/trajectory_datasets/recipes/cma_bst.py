@@ -2,9 +2,8 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
-from scipy.io.matlab import loadmat
 from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
@@ -28,7 +27,7 @@ LABELS = [
 ]
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -42,7 +41,7 @@ def _get_datetime(date_str: str) -> datetime:
     return datetime.strptime(date_str.strip(), "%Y%m%d%H")
 
 
-def _process_huracane(hur_rows: List[str]) -> Tuple[Trajectory, str]:
+def _process_huracane(hur_rows: list[str]) -> tuple[Trajectory, str]:
     lat, long, time, max_cat = [], [], [], 0
     start_time = None
     for row in hur_rows:
@@ -62,13 +61,13 @@ def _process_huracane(hur_rows: List[str]) -> Tuple[Trajectory, str]:
     return traj, label
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing Typhoon raw data")
     trajs, labels = [], []
 
     for year_file in raw_dir.glob("*.txt"):
-        with open(year_file, "r", encoding="utf-8") as file:
+        with open(year_file, encoding="utf-8") as file:
             reader = csv.reader(file, delimiter=" ")
             hur_rows = []
             for row in reader:

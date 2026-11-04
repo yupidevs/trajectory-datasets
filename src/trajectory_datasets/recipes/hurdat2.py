@@ -2,7 +2,7 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
 from yupi import Trajectory
 
@@ -14,7 +14,7 @@ NAME = "hurdat2"
 _HUR_TRACKS = "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2021-100522.txt"
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -46,7 +46,7 @@ def _get_datetime(date_str: str, time_str: str) -> datetime:
     return _datetime
 
 
-def _process_huracane(hur_rows: List[List[str]]) -> Tuple[Trajectory, int]:
+def _process_huracane(hur_rows: list[list[str]]) -> tuple[Trajectory, int]:
     lat, long, time, max_wind_speed = [], [], [], -1.0
     start_time = None
     for row in hur_rows:
@@ -72,12 +72,12 @@ def _process_huracane(hur_rows: List[List[str]]) -> Tuple[Trajectory, int]:
     return traj, label
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[int]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[int]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing Huracane raw data")
     mat_file = raw_dir / "hurdat2-1851-2021-100522.txt"
     trajs, labels = [], []
-    with open(mat_file, "r", encoding="utf-8") as file:
+    with open(mat_file, encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=",")
         hur_rows = []
         for row in reader:

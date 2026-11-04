@@ -1,7 +1,7 @@
 import csv
 import logging
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
 from yupi import Trajectory
 
@@ -11,8 +11,7 @@ VERSION = 0
 NAME = "uci_movement_libras"
 
 _UCI_LIBRAS_TRACKS = (
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/"
-    "libras/movement_libras.data"
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/libras/movement_libras.data"
 )
 
 LABELS = [
@@ -34,7 +33,7 @@ LABELS = [
 ]
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -44,12 +43,12 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing UCI movement libras raw data")
     data_file = raw_dir / "movement_libras.data"
     trajs, labels = [], []
-    with open(data_file, "r", encoding="utf-8") as _fd:
+    with open(data_file, encoding="utf-8") as _fd:
         reader = csv.reader(_fd, delimiter=",")
         for row in reader:
             labels.append(LABELS[int(row[-1]) - 1])

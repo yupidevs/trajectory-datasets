@@ -28,5 +28,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     commands.add_parser("list", help="show the datasets that can be built")
     build = commands.add_parser("build", help="build datasets into zip files")
     build.add_argument("names", nargs="*", help="datasets to build (all of them by default)")
-    build.add_argument("--output-dir", type=Path, default=Path("builds"), help="where to write zips")
+    build.add_argument(
+        "--output-dir", type=Path, default=Path("builds"), help="where to write zips"
+    )
     return parser.parse_args(argv)

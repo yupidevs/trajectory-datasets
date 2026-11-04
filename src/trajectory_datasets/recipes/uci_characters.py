@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
 from scipy.io.matlab import loadmat
 from yupi import Trajectory
@@ -39,7 +39,7 @@ LABELS = [
 ]
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -49,7 +49,7 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
     logging.info("Preprocessing UCI characters raw data")
     mat_file = raw_dir / "mixoutALL_shifted.mat"

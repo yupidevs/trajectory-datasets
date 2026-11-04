@@ -49,11 +49,11 @@ load the datasets if you are using Python. A sample script could be:
 import json
 import yupi
 
-with open('geolife.json', "r", encoding="utf-8") as f:
+with open("geolife.json", "r", encoding="utf-8") as f:
     dataset = json.load(f)
-    name, version = dataset['name'], dataset['version']
-    trajs = [yupi.core.JSONSerializer.from_json(traj) for traj in dataset['trajs']]
-    labels = dataset['labels']    
+    name, version = dataset["name"], dataset["version"]
+    trajs = [yupi.core.JSONSerializer.from_json(traj) for traj in dataset["trajs"]]
+    labels = dataset["labels"]
 ```
 
 This approach will populate `trajs` as a list of `yupi.Trajectory` objects,
@@ -69,7 +69,7 @@ simply doing for example:
 ```python
 import pactus
 
-geolife_dataset = pactus.Dataset.geolife()  
+geolife_dataset = pactus.Dataset.geolife()
 trajs, labels = geolife_dataset.trajs, geolife_dataset.labels
 ```
 
