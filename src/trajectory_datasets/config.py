@@ -26,7 +26,7 @@ PROGRESS_BAR_LENGTH = 50
 #          └── yupi_data.json
 #
 
-CACHE_PATH = os.environ.get("TRAJ_CACHE_PATH", str(Path(__file__).parent / ".cache"))
+CACHE_PATH = os.environ.get("TRAJ_CACHE_PATH", str(Path.cwd() / ".cache"))
 DS_BASE_DIR = CACHE_PATH + "/datasets"
 DS_DIR = DS_BASE_DIR + "/{0}"
 DS_RAW_DIR = DS_DIR + "/raw_data"

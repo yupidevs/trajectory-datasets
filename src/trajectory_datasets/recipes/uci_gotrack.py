@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Tuple, Union
 
 from yupi import Trajectory
 
-import config as cfg
-from utils.utils import _get_path, download_dataset
+from trajectory_datasets import config as cfg
+from trajectory_datasets.downloads import _get_path, download_dataset
 
 VERSION = 0
 NAME = "uci_gotrack"

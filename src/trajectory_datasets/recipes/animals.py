@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple
 import utm
 from yupi import Trajectory
 
-from utils.utils import download_dataset
+from trajectory_datasets.downloads import download_dataset
 
 VERSION = 0
 NAME = "animals"

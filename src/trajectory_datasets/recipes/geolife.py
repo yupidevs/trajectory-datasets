@@ -6,7 +6,7 @@ from typing import Any, List, NamedTuple, Tuple
 import numpy as np
 from yupi import Trajectory
 
-from utils.utils import download_dataset, _get_progress_log
+from trajectory_datasets.downloads import download_dataset, _get_progress_log
 
 NAME = "geolife"
 VERSION = 0

@@ -5,7 +5,7 @@ import patoolib
 import requests
 from requests import Response
 
-import config as cfg
+from trajectory_datasets import config as cfg
 
 
 def _get_path(path: str, *args) -> Path:
