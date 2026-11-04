@@ -7,6 +7,8 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
 
+logger = logging.getLogger(__name__)
+
 VERSION = 0
 NAME = "uci_characters"
 
@@ -49,9 +51,9 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing UCI characters raw data")
+    logger.info("Preprocessing UCI characters raw data")
     mat_file = raw_dir / "mixoutALL_shifted.mat"
     mat = loadmat(str(mat_file))
     _dt = mat["consts"][0][0][5][0][0]

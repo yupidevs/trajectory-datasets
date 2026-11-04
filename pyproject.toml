@@ -117,6 +117,10 @@ no_implicit_reexport = true
 warn_return_any = true
 extra_checks = true
 
+[[tool.mypy.overrides]]
+module = ["patoolib", "scipy.*", "utm"]
+ignore_missing_imports = true
+
 
 [tool.pytest.ini_options]
 minversion = "6.0"

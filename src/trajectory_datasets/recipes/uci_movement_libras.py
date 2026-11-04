@@ -7,6 +7,8 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
 
+logger = logging.getLogger(__name__)
+
 VERSION = 0
 NAME = "uci_movement_libras"
 
@@ -43,12 +45,12 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing UCI movement libras raw data")
+    logger.info("Preprocessing UCI movement libras raw data")
     data_file = raw_dir / "movement_libras.data"
     trajs, labels = [], []
-    with open(data_file, encoding="utf-8") as _fd:
+    with data_file.open(encoding="utf-8") as _fd:
         reader = csv.reader(_fd, delimiter=",")
         for row in reader:
             labels.append(LABELS[int(row[-1]) - 1])

@@ -9,23 +9,12 @@ from pathlib import Path
 # Download configs
 # -----------------------------------------------------------------------------
 DOWNLOAD_CHUNCK_SIZE = 4096
+DOWNLOAD_TIMEOUT_SECONDS = 60
 PROGRESS_BAR_LENGTH = 50
 
 # -----------------------------------------------------------------------------
 # Dataset configs
 # -----------------------------------------------------------------------------
-
-# Dataset structure: (mainly for downloadable datasets)
-#  [build dir]
-#  └── datasets
-#      └── [dataset_name].zip (compressed json file containing version, trajs and labels)
-#
-#  [cache_dir]
-#  └── datasets
-#      └── [dataset_name]
-#          ├── [unzipped dataset files]
-#          └── yupi_data.json
-#
 
 CACHE_PATH = os.environ.get("TRAJ_CACHE_PATH", str(Path.cwd() / ".cache"))
 DS_BASE_DIR = CACHE_PATH + "/datasets"

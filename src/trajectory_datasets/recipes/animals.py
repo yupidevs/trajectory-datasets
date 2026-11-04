@@ -9,6 +9,8 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
 
+logger = logging.getLogger(__name__)
+
 VERSION = 0
 NAME = "animals"
 
@@ -34,7 +36,7 @@ def _get_datetime(date_str: str, time_str: str) -> datetime:
     return datetime.strptime(date_str.strip() + " " + time_str.strip(), "%Y%m%d %H:%M:%S")
 
 
-def _process_animal(animal_rows) -> tuple[Trajectory, str]:
+def _process_animal(animal_rows: list[dict[str, Any]]) -> tuple[Trajectory, str]:
     for row in animal_rows:
         row["time"] = _get_datetime(row[" LocDate"], row[" LocTime"])
 
@@ -43,21 +45,19 @@ def _process_animal(animal_rows) -> tuple[Trajectory, str]:
     lat, long, time = [], [], []
     start_time = None
     label = animal_rows[0][" Species"]
-    for i, row in enumerate(sorted_rows):
+    for row in sorted_rows:
         if start_time is None:
             start_time = _get_datetime(row[" LocDate"], row[" LocTime"])
-            time.append(0)
+            time.append(0.0)
         else:
             _time = _get_datetime(row[" LocDate"], row[" LocTime"])
             new_time = (_time - start_time).total_seconds()
             if new_time == time[-1]:
                 continue
-            assert new_time > time[-1], (
-                f"Time is not increasing: {new_time} <= {time[-1]}. {i}: {_time}"
-            )
             time.append(new_time)
 
-        assert row[" Species"] == label
+        if row[" Species"] != label:
+            raise ValueError(f"Mixed species in one animal: {row[' Id']}")
 
         utm_e = int(row[" UTME"])
         utm_n = int(row[" UTMN"])
@@ -68,11 +68,11 @@ def _process_animal(animal_rows) -> tuple[Trajectory, str]:
     return Trajectory(x=long, y=lat, t=time), LABELS[label]
 
 
-def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing Animals raw data")
+    logger.info("Preprocessing Animals raw data")
     rows_dict: dict[str, Any] = {}
-    with open(raw_dir / "Starkey_OR_Main_Telemetry_1993-1996_Data.txt", encoding="utf-8") as file:
+    with (raw_dir / "Starkey_OR_Main_Telemetry_1993-1996_Data.txt").open(encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
             _id: str = row[" Id"]

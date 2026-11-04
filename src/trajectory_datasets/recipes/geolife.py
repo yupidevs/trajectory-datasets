@@ -1,4 +1,5 @@
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, NamedTuple
@@ -8,8 +9,11 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import _get_progress_log, download_dataset
 
+logger = logging.getLogger(__name__)
+
 NAME = "geolife"
 VERSION = 0
+MIN_POINTS = 5
 
 _GEOLIFE_URL = (
     "https://download.microsoft.com/download/F/4/8/"
@@ -34,21 +38,21 @@ def build() -> tuple[list[Trajectory], list[Any]]:
     return yupify(raw_dir)
 
 
-def yupify(raw_dir: Path):
+def yupify(raw_dir: Path) -> tuple[list[Trajectory], list[Any]]:
     # Loads the raw data and preprocess it
-    raw_metadata = []
-    logging.info("Preprocessing GeoLife raw data")
+    raw_metadata: list[dict[str, Any]] = []
+    logger.info("Preprocessing GeoLife raw data")
     usr_folders_path = raw_dir / "Geolife Trajectories 1.3/Data"
     usr_folders = list(sorted(usr_folders_path.iterdir()))
     for i, usr in enumerate(usr_folders):
-        print(_get_progress_log(i + 1, len(usr_folders)), end="\r", flush=True)
+        sys.stderr.write(_get_progress_log(i + 1, len(usr_folders)) + "\r")
         _process_usr_trajs(usr, raw_metadata)
 
     # Load the preprocessed data and create the yupi trajectories
-    logging.info("Creating yupi trajectories")
+    logger.info("Creating yupi trajectories")
     trajs, lables = [], []
     for i, traj_data in enumerate(raw_metadata):
-        print(_get_progress_log(i + 1, len(raw_metadata)), end="\r", flush=True)
+        sys.stderr.write(_get_progress_log(i + 1, len(raw_metadata)) + "\r")
         x_data = traj_data["traj_data"][:, 1]
         y_data = traj_data["traj_data"][:, 0]
         t_data = traj_data["traj_data"][:, 2]
@@ -60,7 +64,7 @@ def yupify(raw_dir: Path):
 
 def _load_labels(labels_file: Path) -> list[LabelData]:
     """Loads the labels of a user."""
-    with open(labels_file, encoding="utf-8") as l_file:
+    with labels_file.open(encoding="utf-8") as l_file:
         labels = [_parse_label(line) for line in l_file.readlines()[1:]]
     return labels
 
@@ -90,7 +94,7 @@ def _process_usr_trajs(usr_folder: Path, raw_metadata: list[dict]) -> None:
         # Register outside label bounds
         elif label.start_dt < reg_dt:
             # Save the trajectory if it has at least 5 points
-            if len(traj) > 5:
+            if len(traj) > MIN_POINTS:
                 raw_metadata.append(
                     {
                         "id": f"{usr_folder.name}_{label_idx}",
@@ -115,7 +119,7 @@ def _load_registers(usr_folder: Path) -> list[Register]:
     trajs_folder = usr_folder / "Trajectory"
     sorted_paths = sorted(trajs_folder.iterdir())
     for plt in sorted_paths:
-        with open(plt, encoding="utf-8") as reg:
+        with plt.open(encoding="utf-8") as reg:
             registers = [_parse_register(line) for line in reg.readlines()[6:]]
             all_regs += registers
     return all_regs

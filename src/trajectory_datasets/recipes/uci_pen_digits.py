@@ -7,6 +7,8 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
 
+logger = logging.getLogger(__name__)
+
 VERSION = 0
 NAME = "uci_pen_digits"
 
@@ -28,7 +30,7 @@ def _fetch_raw_data() -> Path:
 
 def load_tracks(file: Path) -> tuple[list[Trajectory], list[int]]:
     trajs, labels = [], []
-    with open(file, encoding="utf-8") as _fd:
+    with file.open(encoding="utf-8") as _fd:
         reader = csv.reader(_fd, delimiter=",")
         for row in reader:
             labels.append(int(row[-1]))
@@ -38,9 +40,9 @@ def load_tracks(file: Path) -> tuple[list[Trajectory], list[int]]:
     return trajs, labels
 
 
-def _yupify(raw_dir) -> tuple[list[Trajectory], list[int]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[int]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing UCI pen digits raw data")
+    logger.info("Preprocessing UCI pen digits raw data")
     test_traks = raw_dir / "pendigits.tes"
     train_tracks = raw_dir / "pendigits.tra"
     train_trajs, train_labels = load_tracks(train_tracks)

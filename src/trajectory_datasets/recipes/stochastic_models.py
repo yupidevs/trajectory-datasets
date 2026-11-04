@@ -5,6 +5,8 @@ import numpy as np
 from yupi import Trajectory
 from yupi.generators import DiffDiffGenerator, LangevinGenerator, RandomWalkGenerator
 
+logger = logging.getLogger(__name__)
+
 # Dataset metadata
 NAME = "stochastic_models"
 VERSION = 0
@@ -18,87 +20,88 @@ RANG_T = [8, 20]
 N_TRAJS = 1000
 
 
+class _Seeds:
+    def __init__(self) -> None:
+        self.current = 0
+
+    def next(self) -> int:
+        self.current += 1
+        return self.current
+
+
 # Build a new instance of the dataset
 def build() -> tuple[list[Trajectory], list[Any]]:
-    trajs, labels = [], []
+    trajs: list[Trajectory] = []
+    labels: list[Any] = []
+    seeds = _Seeds()
     model_builders = _build_langevin, _build_random_walk, _build_diffdiff
-    logging.info("Generating stochastic models dataset")
+    logger.info("Generating stochastic models dataset")
     for mb in model_builders:
-        tl, ll = mb(N_TRAJS)
+        tl, ll = mb(N_TRAJS, seeds)
         trajs += tl
         labels += ll
     return trajs, labels
 
 
-seed = 0
-
-
-def get_seed() -> int:
-    global seed
-    seed += 1
-    return seed
-
-
-def _build_langevin(n_trajs: int) -> tuple[list[Trajectory], list[Any]]:
-    rng = np.random.default_rng(seed)
+def _build_langevin(n_trajs: int, seeds: _Seeds) -> tuple[list[Trajectory], list[Any]]:
+    rng = np.random.default_rng(seeds.current)
 
     tau = rng.uniform(*RANG_T_SCALE, size=n_trajs)
-    T = tau * rng.uniform(*RANG_T, size=n_trajs)
+    total = tau * rng.uniform(*RANG_T, size=n_trajs)
     dt = tau * rng.uniform(*RANG_DT, size=n_trajs)
     r = rng.uniform(*RANG_R_SCALE, size=n_trajs)
     sigma = rng.permutation(r) / (tau * np.sqrt(tau))
     gamma = 1 / tau
 
-    trajs, labels = [], []
-    for T_, dt_, gamma_, sigma_ in zip(T, dt, gamma, sigma):
+    trajs: list[Trajectory] = []
+    labels: list[Any] = []
+    for duration, dt_, gamma_, sigma_ in zip(total, dt, gamma, sigma, strict=True):
         lg_gen = LangevinGenerator(
-            T=T_, dim=DIM, N=1, dt=dt_, gamma=gamma_, sigma=sigma_, seed=get_seed()
+            T=duration, dim=DIM, dt=dt_, gamma=gamma_, sigma=sigma_, seed=seeds.next()
         )
-        trajs.append(*lg_gen.generate())
+        trajs.append(*lg_gen.generate(1))
         labels.append("Langevin")
 
     return trajs, labels
 
 
-def _build_diffdiff(n_trajs: int) -> tuple[list[Trajectory], list[Any]]:
-    rng = np.random.default_rng(seed)
+def _build_diffdiff(n_trajs: int, seeds: _Seeds) -> tuple[list[Trajectory], list[Any]]:
+    rng = np.random.default_rng(seeds.current)
 
     tau = rng.uniform(*RANG_T_SCALE, size=n_trajs)
-    T = tau * rng.uniform(*RANG_T, size=n_trajs)
+    total = tau * rng.uniform(*RANG_T, size=n_trajs)
     dt = tau * rng.uniform(*RANG_DT, size=n_trajs)
     r = rng.uniform(*RANG_R_SCALE, size=n_trajs)
     sigma = rng.permutation(r) / (tau * np.sqrt(tau))
 
-    trajs, labels = [], []
-    for T_, dt_, tau_, sigma_ in zip(T, dt, tau, sigma):
+    trajs: list[Trajectory] = []
+    labels: list[Any] = []
+    for duration, dt_, tau_, sigma_ in zip(total, dt, tau, sigma, strict=True):
         dfdf_gen = DiffDiffGenerator(
-            T=T_, dim=DIM, N=1, dt=dt_, tau=tau_, sigma=sigma_, seed=get_seed()
+            T=duration, dim=DIM, dt=dt_, tau=tau_, sigma=sigma_, seed=seeds.next()
         )
-        trajs.append(*dfdf_gen.generate())
+        trajs.append(*dfdf_gen.generate(1))
         labels.append("DiffDiff")
 
     return trajs, labels
 
 
-def _build_random_walk(n_trajs: int) -> tuple[list[Trajectory], list[Any]]:
-    rng = np.random.default_rng(seed)
+def _build_random_walk(n_trajs: int, seeds: _Seeds) -> tuple[list[Trajectory], list[Any]]:
+    rng = np.random.default_rng(seeds.current)
 
     tau = rng.uniform(*RANG_T_SCALE, size=n_trajs)
-    T = tau * rng.uniform(*RANG_T, size=n_trajs)
+    total = tau * rng.uniform(*RANG_T, size=n_trajs)
     dt = tau * rng.uniform(*RANG_DT, size=n_trajs)
     rand_vec = rng.uniform(0, 10, size=(n_trajs, DIM, 3))
     prob = rand_vec / rand_vec.sum(-1)[..., None]
 
-    trajs, labels = [], []
-    for T_, dt_, prob_ in zip(T, dt, prob):
+    trajs: list[Trajectory] = []
+    labels: list[Any] = []
+    for duration, dt_, prob_ in zip(total, dt, prob, strict=True):
         rw_gen = RandomWalkGenerator(
-            T=T_, dim=DIM, N=1, dt=dt_, actions_prob=prob_, seed=get_seed()
+            T=duration, dim=DIM, dt=dt_, actions_prob=prob_, seed=seeds.next()
         )
-        trajs.append(*rw_gen.generate())
+        trajs.append(*rw_gen.generate(1))
         labels.append("RandomWalk")
 
     return trajs, labels
-
-
-if __name__ == "__main__":
-    build()

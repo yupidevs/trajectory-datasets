@@ -8,8 +8,11 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
 
+logger = logging.getLogger(__name__)
+
 VERSION = 0
 NAME = "uci_gotrack"
+MIN_POINTS = 3
 
 _UCI_TRACKS_URL = (
     "https://archive.ics.uci.edu/ml/machine-learning-databases/00354/GPS%20Trajectory.rar"
@@ -39,18 +42,18 @@ def _get_traj(rows: list[dict]) -> Trajectory | None:
         lon.append(float(row["longitude"]))
         time.append((_t - _t0).total_seconds())
         _last_t = _t
-    return Trajectory(x=lon, y=lat, t=time) if len(time) > 3 else None
+    return Trajectory(x=lon, y=lat, t=time) if len(time) > MIN_POINTS else None
 
 
-def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing UCI GPS trajectories raw data")
+    logger.info("Preprocessing UCI GPS trajectories raw data")
     metadata_path = raw_dir / "GPS Trajectory/go_track_tracks.csv"
     tracks_path = raw_dir / "GPS Trajectory/go_track_trackspoints.csv"
 
     labels_dict = {}
 
-    with open(metadata_path, encoding="utf-8") as meta_fd:
+    with metadata_path.open(encoding="utf-8") as meta_fd:
         reader = csv.DictReader(meta_fd)
         for row in reader:
             label = int(row["car_or_bus"])
@@ -58,7 +61,7 @@ def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
 
     trajs_rows: dict[int, list[dict]] = {_id: [] for _id in labels_dict}
 
-    with open(tracks_path, encoding="utf-8") as tracks_fd:
+    with tracks_path.open(encoding="utf-8") as tracks_fd:
         reader = csv.DictReader(tracks_fd)
 
         first_row = next(reader)
@@ -72,14 +75,14 @@ def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
                 if _track_id in labels_dict:
                     trajs_rows[_track_id].extend(_rows)
                 else:
-                    logging.warning("Track id %d not in metadata", _track_id)
+                    logger.warning("Track id %d not in metadata", _track_id)
                 _rows = []
                 _track_id = track_id
             _rows.append(row)
 
     trajs, labels = [], []
-    for rows, lbl in zip(trajs_rows.values(), labels_dict.values()):
-        if len(rows) < 3:
+    for rows, lbl in zip(trajs_rows.values(), labels_dict.values(), strict=True):
+        if len(rows) < MIN_POINTS:
             continue
         traj = _get_traj(rows)
         if traj is not None:

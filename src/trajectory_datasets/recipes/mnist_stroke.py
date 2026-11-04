@@ -8,6 +8,8 @@ from yupi import Trajectory
 
 from trajectory_datasets.downloads import download_dataset
 
+logger = logging.getLogger(__name__)
+
 VERSION = 0
 NAME = "mnist_stroke"
 
@@ -31,9 +33,9 @@ def _fetch_raw_data() -> Path:
 
 
 def _read_labels(label_file: Path, count: int) -> list[str]:
-    with open(label_file, "rb") as f:
+    with label_file.open("rb") as f:
         f.read(8)  # discard header info
-        return [str(l) for l in f.read(count)]
+        return [str(label) for label in f.read(count)]
 
 
 def _read_traj(trajectory_file: Path) -> Trajectory:
@@ -66,20 +68,20 @@ def _yupify_mnist(
     return trajs, labels
 
 
-def _yupify(raw_dir) -> tuple[list[Trajectory], list[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing MNIST stroke raw data")
+    logger.info("Preprocessing MNIST stroke raw data")
     sequence_path = raw_dir / "sequences"
     train_labels_path = raw_dir / "train-labels.idx1-ubyte"
     test_labels_path = raw_dir / "t10k-labels.idx1-ubyte"
 
-    logging.info("Yupifying train dataset...")
+    logger.info("Yupifying train dataset...")
     train_template = Template("trainimg-$id-points.txt")
     trajs_train, labels_train = _yupify_mnist(
         sequence_path, train_labels_path, template=train_template, count=60000
     )
 
-    logging.info("Yupifying test dataset...")
+    logger.info("Yupifying test dataset...")
     test_template = Template("testimg-$id-points.txt")
     trajs_test, labels_test = _yupify_mnist(
         sequence_path, test_labels_path, template=test_template, count=10000
