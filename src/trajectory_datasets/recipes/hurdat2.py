@@ -2,19 +2,25 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
 from yupi import Trajectory
 
-from utils.utils import download_dataset
+from trajectory_datasets.downloads import download_dataset
+
+logger = logging.getLogger(__name__)
 
 VERSION = 0
 NAME = "hurdat2"
+MIN_ROWS = 2
+
+# Minimum wind speed (kt) of each Saffir-Simpson category
+SAFFIR_SIMPSON_SCALE = ((137, 5), (113, 4), (96, 3), (83, 2), (64, 1))
 
 _HUR_TRACKS = "https://www.nhc.noaa.gov/data/hurdat/hurdat2-1851-2021-100522.txt"
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -25,17 +31,9 @@ def _fetch_raw_data() -> Path:
 
 
 def _get_saffir_simpson_scale(max_wind_speed: float) -> int:
-    # Wind speed (kt)	Saffir-Simpson Hurricane Scale
-    if max_wind_speed >= 137:
-        return 5
-    if max_wind_speed >= 113:
-        return 4
-    if max_wind_speed >= 96:
-        return 3
-    if max_wind_speed >= 83:
-        return 2
-    if max_wind_speed >= 64:
-        return 1
+    for threshold, category in SAFFIR_SIMPSON_SCALE:
+        if max_wind_speed >= threshold:
+            return category
     return 0
 
 
@@ -46,19 +44,19 @@ def _get_datetime(date_str: str, time_str: str) -> datetime:
     return _datetime
 
 
-def _process_huracane(hur_rows: List[List[str]]) -> Tuple[Trajectory, int]:
+def _process_huracane(hur_rows: list[list[str]]) -> tuple[Trajectory, int]:
     lat, long, time, max_wind_speed = [], [], [], -1.0
     start_time = None
     for row in hur_rows:
         if start_time is None:
             start_time = _get_datetime(row[0], row[1])
-            time.append(0)
+            time.append(0.0)
         else:
             _time = _get_datetime(row[0], row[1])
             time.append((_time - start_time).total_seconds())
 
-        assert row[4][-1] == "N" or row[4][-1] == "S"
-        assert row[5][-1] == "W" or row[5][-1] == "E"
+        if row[4][-1] not in "NS" or row[5][-1] not in "WE":
+            raise ValueError(f"Unknown position: {row[4]} {row[5]}")
         lat.append(float(row[4][:-1]))
         long.append(float(row[5][:-1]))
 
@@ -72,17 +70,17 @@ def _process_huracane(hur_rows: List[List[str]]) -> Tuple[Trajectory, int]:
     return traj, label
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[int]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[int]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing Huracane raw data")
+    logger.info("Preprocessing Huracane raw data")
     mat_file = raw_dir / "hurdat2-1851-2021-100522.txt"
     trajs, labels = [], []
-    with open(mat_file, "r", encoding="utf-8") as file:
+    with mat_file.open(encoding="utf-8") as file:
         reader = csv.reader(file, delimiter=",")
-        hur_rows = []
+        hur_rows: list[list[str]] = []
         for row in reader:
             if row[0].startswith("AL"):
-                if len(hur_rows) > 2:
+                if len(hur_rows) > MIN_ROWS:
                     traj, label = _process_huracane(hur_rows)
                     trajs.append(traj)
                     labels.append(label)

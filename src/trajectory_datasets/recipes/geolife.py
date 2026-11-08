@@ -1,15 +1,19 @@
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, NamedTuple, Tuple
+from typing import Any, NamedTuple
 
 import numpy as np
 from yupi import Trajectory
 
-from utils.utils import download_dataset, _get_progress_log
+from trajectory_datasets.downloads import _get_progress_log, download_dataset
+
+logger = logging.getLogger(__name__)
 
 NAME = "geolife"
 VERSION = 0
+MIN_POINTS = 5
 
 _GEOLIFE_URL = (
     "https://download.microsoft.com/download/F/4/8/"
@@ -17,37 +21,38 @@ _GEOLIFE_URL = (
 )
 
 
-LabelData = NamedTuple(
-    "LabelData", [("start_dt", datetime), ("end_dt", datetime), ("name", str)]
-)
+class LabelData(NamedTuple):
+    start_dt: datetime
+    end_dt: datetime
+    name: str
 
 
-Register = Tuple[float, float, datetime]
+Register = tuple[float, float, datetime]
 """Register data (GPS point and time) in the form: lat, lon, time"""
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_data_file = download_dataset(_GEOLIFE_URL, NAME)
 
     raw_dir = raw_data_file.parent
     return yupify(raw_dir)
 
 
-def yupify(raw_dir: Path):
+def yupify(raw_dir: Path) -> tuple[list[Trajectory], list[Any]]:
     # Loads the raw data and preprocess it
-    raw_metadata = []
-    logging.info("Preprocessing GeoLife raw data")
+    raw_metadata: list[dict[str, Any]] = []
+    logger.info("Preprocessing GeoLife raw data")
     usr_folders_path = raw_dir / "Geolife Trajectories 1.3/Data"
     usr_folders = list(sorted(usr_folders_path.iterdir()))
     for i, usr in enumerate(usr_folders):
-        print(_get_progress_log(i + 1, len(usr_folders)), end="\r", flush=True)
+        sys.stderr.write(_get_progress_log(i + 1, len(usr_folders)) + "\r")
         _process_usr_trajs(usr, raw_metadata)
 
     # Load the preprocessed data and create the yupi trajectories
-    logging.info("Creating yupi trajectories")
+    logger.info("Creating yupi trajectories")
     trajs, lables = [], []
     for i, traj_data in enumerate(raw_metadata):
-        print(_get_progress_log(i + 1, len(raw_metadata)), end="\r", flush=True)
+        sys.stderr.write(_get_progress_log(i + 1, len(raw_metadata)) + "\r")
         x_data = traj_data["traj_data"][:, 1]
         y_data = traj_data["traj_data"][:, 0]
         t_data = traj_data["traj_data"][:, 2]
@@ -57,14 +62,14 @@ def yupify(raw_dir: Path):
     return trajs, lables
 
 
-def _load_labels(labels_file: Path) -> List[LabelData]:
+def _load_labels(labels_file: Path) -> list[LabelData]:
     """Loads the labels of a user."""
-    with open(labels_file, "r", encoding="utf-8") as l_file:
+    with labels_file.open(encoding="utf-8") as l_file:
         labels = [_parse_label(line) for line in l_file.readlines()[1:]]
     return labels
 
 
-def _process_usr_trajs(usr_folder: Path, raw_metadata: List[dict]) -> None:
+def _process_usr_trajs(usr_folder: Path, raw_metadata: list[dict]) -> None:
     """Processes the trajectories of a user."""
     labels_file = usr_folder / "labels.txt"
     if not labels_file.exists():
@@ -76,7 +81,7 @@ def _process_usr_trajs(usr_folder: Path, raw_metadata: List[dict]) -> None:
     label_idx = 0
     regs_idx = 0
     label = labels[label_idx]
-    traj: List[List[float]] = []
+    traj: list[list[float]] = []
     while regs_idx < len(all_regs):
         lat, long, reg_dt = all_regs[regs_idx]
 
@@ -89,7 +94,7 @@ def _process_usr_trajs(usr_folder: Path, raw_metadata: List[dict]) -> None:
         # Register outside label bounds
         elif label.start_dt < reg_dt:
             # Save the trajectory if it has at least 5 points
-            if len(traj) > 5:
+            if len(traj) > MIN_POINTS:
                 raw_metadata.append(
                     {
                         "id": f"{usr_folder.name}_{label_idx}",
@@ -108,13 +113,13 @@ def _process_usr_trajs(usr_folder: Path, raw_metadata: List[dict]) -> None:
         regs_idx += 1
 
 
-def _load_registers(usr_folder: Path) -> List[Register]:
+def _load_registers(usr_folder: Path) -> list[Register]:
     """Loads all the registers of a user."""
     all_regs = []
     trajs_folder = usr_folder / "Trajectory"
     sorted_paths = sorted(trajs_folder.iterdir())
     for plt in sorted_paths:
-        with open(plt, "r", encoding="utf-8") as reg:
+        with plt.open(encoding="utf-8") as reg:
             registers = [_parse_register(line) for line in reg.readlines()[6:]]
             all_regs += registers
     return all_regs

@@ -1,23 +1,26 @@
 import logging
 from pathlib import Path
 from string import Template
-from typing import Any, List, Tuple
+from typing import Any
 
 import numpy as np
 from yupi import Trajectory
 
-import config as cfg
-from utils.utils import _get_path, download_dataset
+from trajectory_datasets.downloads import download_dataset
+
+logger = logging.getLogger(__name__)
 
 VERSION = 0
 NAME = "mnist_stroke"
 
-_SEQUENCES_URL = "https://github.com/edwin-de-jong/mnist-digits-stroke-sequence-data/raw/master/sequences.tar.gz"
-_TRAIN_LABELS_URL = "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"
-_TEST_LABELS_URL = "http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz"
+_SEQUENCES_URL = (
+    "https://github.com/edwin-de-jong/mnist-digits-stroke-sequence-data/raw/master/sequences.tar.gz"
+)
+_TRAIN_LABELS_URL = "https://ossci-datasets.s3.amazonaws.com/mnist/train-labels-idx1-ubyte.gz"
+_TEST_LABELS_URL = "https://ossci-datasets.s3.amazonaws.com/mnist/t10k-labels-idx1-ubyte.gz"
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -29,10 +32,10 @@ def _fetch_raw_data() -> Path:
     return raw_trajs_filepath.parent
 
 
-def _read_labels(label_file: Path, count: int) -> List[str]:
-    with open(label_file, "rb") as f:
+def _read_labels(label_file: Path, count: int) -> list[str]:
+    with label_file.open("rb") as f:
         f.read(8)  # discard header info
-        return [str(l) for l in f.read(count)]
+        return [str(label) for label in f.read(count)]
 
 
 def _read_traj(trajectory_file: Path) -> Trajectory:
@@ -45,9 +48,7 @@ def _read_traj(trajectory_file: Path) -> Trajectory:
     return Trajectory(points=points)
 
 
-def _read_trajs(
-    sequence_folder: Path, template: Template, count: int
-) -> List[Trajectory]:
+def _read_trajs(sequence_folder: Path, template: Template, count: int) -> list[Trajectory]:
     trajs = []
     for i in range(count):
         traj_path = sequence_folder / template.substitute(id=i)
@@ -58,7 +59,7 @@ def _read_trajs(
 
 def _yupify_mnist(
     sequence_folder: Path, label_file: Path, template: Template, count: int
-) -> Tuple[List[Trajectory], List[str]]:
+) -> tuple[list[Trajectory], list[str]]:
     """Yupifies a part of the dataset"""
 
     labels = _read_labels(label_file, count)
@@ -67,20 +68,20 @@ def _yupify_mnist(
     return trajs, labels
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing MNIST stroke raw data")
+    logger.info("Preprocessing MNIST stroke raw data")
     sequence_path = raw_dir / "sequences"
     train_labels_path = raw_dir / "train-labels.idx1-ubyte"
     test_labels_path = raw_dir / "t10k-labels.idx1-ubyte"
 
-    logging.info("Yupifying train dataset...")
+    logger.info("Yupifying train dataset...")
     train_template = Template("trainimg-$id-points.txt")
     trajs_train, labels_train = _yupify_mnist(
         sequence_path, train_labels_path, template=train_template, count=60000
     )
 
-    logging.info("Yupifying test dataset...")
+    logger.info("Yupifying test dataset...")
     test_template = Template("testimg-$id-points.txt")
     trajs_test, labels_test = _yupify_mnist(
         sequence_path, test_labels_path, template=test_template, count=10000

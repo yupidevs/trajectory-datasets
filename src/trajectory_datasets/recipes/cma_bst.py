@@ -2,15 +2,17 @@ import csv
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, List, Tuple
+from typing import Any
 
-from scipy.io.matlab import loadmat
 from yupi import Trajectory
 
-from utils.utils import download_dataset
+from trajectory_datasets.downloads import download_dataset
+
+logger = logging.getLogger(__name__)
 
 VERSION = 0
 NAME = "cma_bst"
+MIN_ROWS = 2
 
 _HUR_TRACKS = "https://tcdata.typhoon.org.cn/data/CMABSTdata/CMABSTdata.rar"
 
@@ -28,7 +30,7 @@ LABELS = [
 ]
 
 
-def build() -> Tuple[List[Trajectory], List[Any]]:
+def build() -> tuple[list[Trajectory], list[Any]]:
     raw_dir = _fetch_raw_data()
     return _yupify(raw_dir)
 
@@ -42,13 +44,13 @@ def _get_datetime(date_str: str) -> datetime:
     return datetime.strptime(date_str.strip(), "%Y%m%d%H")
 
 
-def _process_huracane(hur_rows: List[str]) -> Tuple[Trajectory, str]:
+def _process_huracane(hur_rows: list[list[str]]) -> tuple[Trajectory, str]:
     lat, long, time, max_cat = [], [], [], 0
     start_time = None
     for row in hur_rows:
         if start_time is None:
             start_time = _get_datetime(row[0])
-            time.append(0)
+            time.append(0.0)
         else:
             _time = _get_datetime(row[0])
             time.append((_time - start_time).total_seconds())
@@ -62,19 +64,19 @@ def _process_huracane(hur_rows: List[str]) -> Tuple[Trajectory, str]:
     return traj, label
 
 
-def _yupify(raw_dir) -> Tuple[List[Trajectory], List[str]]:
+def _yupify(raw_dir: Path) -> tuple[list[Trajectory], list[str]]:
     # Loads the raw data and preprocess it
-    logging.info("Preprocessing Typhoon raw data")
+    logger.info("Preprocessing Typhoon raw data")
     trajs, labels = [], []
 
     for year_file in raw_dir.glob("*.txt"):
-        with open(year_file, "r", encoding="utf-8") as file:
+        with year_file.open(encoding="utf-8") as file:
             reader = csv.reader(file, delimiter=" ")
-            hur_rows = []
-            for row in reader:
-                row = [item for item in row if item]
+            hur_rows: list[list[str]] = []
+            for raw_row in reader:
+                row = [item for item in raw_row if item]
                 if row[0].startswith("66666"):
-                    if len(hur_rows) > 2:
+                    if len(hur_rows) > MIN_ROWS:
                         traj, label = _process_huracane(hur_rows)
                         trajs.append(traj)
                         labels.append(label)

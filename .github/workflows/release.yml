@@ -1,36 +1,26 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        type: string
-        required: true
-        description: "Version number"
-      only_recipes:
-        type: string
-        required: false
-        description: "Only recipes to release (comma separated, no spaces, e.g. 'recipe1,recipe2')"
+  workflow_run:
+    workflows: ["QA"]
+    branches: [main]
+    types: [completed]
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
-    runs-on: ubuntu-20.04
+    if: github.event.workflow_run.conclusion == 'success'
+    uses: gvieralopez/cookie-pyrate/.github/workflows/reusable-release.yml@v1.1.2
     permissions:
       contents: write
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.8.6'
-    - name: Install tools dependencies
-      run: sudo apt-get install unrar
-    - name: Install python dependencies
-      run: pip install -r requirements.txt
-    - name: Run build
-      run: python build.py ${{ github.event.inputs.only_recipes }}
-    - uses: ncipollo/release-action@v1
-      with:
-        name: "trajectory datasets"
-        artifacts: "./builds/*.zip"
-        tag: "v${{ github.event.inputs.version }}"
-        commit: "main"
+    with:
+      cookie-pyrate-ref: v1.1.2
+      create-github-release: true
+      attach-distribution: false
+      prepare-next-version: true
+    secrets:
+      # Created by `make repo`; lets the version bumps land on a protected main.
+      RELEASE_SSH_KEY: ${{ secrets.RELEASE_SSH_KEY }}
