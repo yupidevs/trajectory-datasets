@@ -779,7 +779,7 @@ wheels = [
 
 [[package]]
 name = "trajectory-datasets"
-version = "0.2.1"
+version = "0.2.2b0"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },

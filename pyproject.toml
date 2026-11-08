@@ -1,6 +1,6 @@
 [project]
 name = "trajectory_datasets"
-version = "0.2.1"
+version = "0.2.2-beta0"
 description = "Standardized raw trajectory datasets for trajectory classification."
 readme = "README.md"
 requires-python = ">=3.15"
